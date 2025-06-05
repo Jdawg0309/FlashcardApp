@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Review: {{ deck.name }}{% endblock %}
+
+{% block content %}
+  <h1 class="mb-4">Review: {{ deck.name }}</h1>
+
+  {% if card %}
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-subtitle mb-3 text-muted">Front</h5>
+
+        {% if card.image_filename or card.image_url %}
+          <div class="mb-3 text-center">
+            <img
+              src="{% if card.image_filename %}{{ url_for('static', filename='uploads/' ~ card.image_filename) }}{% else %}{{ card.image_url }}{% endif %}"
+              class="img-fluid mb-3"
+              style="max-height: 200px; object-fit: contain;"
+            >
+          </div>
+        {% endif %}
+
+        <p class="card-text mb-4">{{ card.front|safe }}</p>
+
+        <button id="show-answer-button" class="btn btn-primary mb-3">
+          <i class="fas fa-eye"></i> Show Answer
+        </button>
+
+        <div id="answer-section" style="display: none; margin-top: 2rem;">
+          <h5 class="card-subtitle mb-3 text-muted">Back</h5>
+
+          {% if card.audio_filename or card.audio_url %}
+            <div class="mb-3">
+              <audio controls style="width: 100%;">
+                <source src="{% if card.audio_filename %}{{ url_for('static', filename='uploads/' ~ card.audio_filename) }}{% else %}{{ card.audio_url }}{% endif %}">
+                Your browser does not support the audio element.
+              </audio>
+            </div>
+          {% endif %}
+
+          <p class="card-text mb-4">{{ card.back|safe }}</p>
+
+          <h6>Rate your recall:</h6>
+          <form method="POST" action="{{ url_for('review', deck_id=deck.id) }}" class="d-flex flex-wrap gap-2">
+            <input type="hidden" name="card_id" value="{{ card.id }}">
+            <button type="submit" name="quality" value="5" class="btn btn-success">5 Perfect</button>
+            <button type="submit" name="quality" value="4" class="btn btn-info">4 Good</button>
+            <button type="submit" name="quality" value="3" class="btn btn-warning">3 Hesitated</button>
+            <button type="submit" name="quality" value="2" class="btn btn-secondary">2 Hard</button>
+            <button type="submit" name="quality" value="1" class="btn btn-danger">1 Forgot</button>
+            <button type="submit" name="quality" value="0" class="btn btn-dark">0 Blackout</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        const btn = document.getElementById("show-answer-button");
+        if (btn) {
+          btn.addEventListener("click", function() {
+            document.getElementById("answer-section").style.display = "block";
+            btn.style.display = "none";
+          });
+        }
+      });
+    </script>
+
+  {% else %}
+    <div class="alert alert-success text-center">
+      No cards are due right now! 🎉
+    </div>
+    <a href="{{ url_for('deck_detail', deck_id=deck.id) }}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left"></i> Back to Deck
+    </a>
+  {% endif %}
+{% endblock %}

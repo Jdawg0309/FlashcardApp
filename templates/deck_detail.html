@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Deck: {{ deck.name }}{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Deck: {{ deck.name }}</h1>
+    <div>
+      <a href="{{ url_for('new_card', deck_id=deck.id) }}" class="btn btn-success me-2">
+        <i class="fas fa-plus"></i> Add Card
+      </a>
+      <a href="{{ url_for('review', deck_id=deck.id) }}" class="btn btn-primary me-2">
+        <i class="fas fa-play"></i> Review Now
+      </a>
+      <a href="{{ url_for('import_cards', deck_id=deck.id) }}" class="btn btn-info me-2">
+        <i class="fas fa-file-import"></i> Import Cards
+      </a>
+      <div class="btn-group">
+        <a href="{{ url_for('export_csv', deck_id=deck.id) }}" class="btn btn-outline-secondary">
+          <i class="fas fa-file-csv"></i> CSV
+        </a>
+        <a href="{{ url_for('export_xlsx', deck_id=deck.id) }}" class="btn btn-outline-secondary">
+          <i class="fas fa-file-excel"></i> Excel
+        </a>
+        <a href="{{ url_for('export_anki', deck_id=deck.id) }}" class="btn btn-outline-success">
+          <i class="fas fa-file-archive"></i> Anki
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search & Tag Filter -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <form method="GET" class="d-flex">
+        <input
+          type="text"
+          name="q"
+          value="{{ q }}"
+          class="form-control me-2"
+          placeholder="Search cards…"
+        >
+        <button type="submit" class="btn btn-outline-primary">Search</button>
+      </form>
+    </div>
+    <div class="col-md-6">
+      <form method="GET" class="d-flex justify-content-end">
+        {% if q %}
+          <input type="hidden" name="q" value="{{ q }}">
+        {% endif %}
+        <select name="tag" class="form-select w-auto me-2">
+          <option value="">All Tags</option>
+          {% for tag in all_tags %}
+            <option value="{{ tag.id }}"
+              {% if selected_tag and (selected_tag == tag.id) %} selected {% endif %}>
+              {{ tag.name }}
+            </option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-outline-secondary">Filter</button>
+      </form>
+    </div>
+  </div>
+
+  {% if cards %}
+    <div class="table-responsive shadow-sm">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Front</th>
+            <th>Back</th>
+            <th>Image</th>
+            <th>Audio</th>
+            <th>Tags</th>
+            <th>Next Review</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for card in cards %}
+            <tr>
+              <td>{{ card.front|truncate(50) }}</td>
+              <td>{{ card.back|truncate(50) }}</td>
+              <td>
+                {% if card.image_filename %}
+                  <img
+                    src="{{ url_for('static', filename='uploads/' ~ card.image_filename) }}"
+                    class="img-thumbnail"
+                    style="max-width: 80px;"
+                  >
+                {% elif card.image_url %}
+                  <img
+                    src="{{ card.image_url }}"
+                    class="img-thumbnail"
+                    style="max-width: 80px;"
+                  >
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td>
+                {% if card.audio_filename %}
+                  <audio controls style="width: 120px;">
+                    <source src="{{ url_for('static', filename='uploads/' ~ card.audio_filename) }}">
+                    Your browser does not support the audio element.
+                  </audio>
+                {% elif card.audio_url %}
+                  <audio controls style="width: 120px;">
+                    <source src="{{ card.audio_url }}">
+                    Your browser does not support the audio element.
+                  </audio>
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td>
+                {% for tag in card.tags %}
+                  <span class="badge bg-secondary">{{ tag.name }}</span>
+                {% endfor %}
+              </td>
+              <td>
+                {% if card.next_review %}
+                  {{ card.next_review.strftime("%Y-%m-%d") }}
+                {% else %}
+                  <span class="badge bg-danger">ASAP</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="alert alert-secondary text-center">
+      No cards match your criteria.
+    </div>
+  {% endif %}
+
+  <div class="mt-4">
+    <a href="{{ url_for('deck_list') }}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left"></i> Back to Decks
+    </a>
+  </div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}New Deck{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title mb-0">Create New Deck</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="{{ url_for('new_deck') }}">
+            <div class="mb-3">
+              <label for="name" class="form-label">Deck Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                placeholder="Enter deck name"
+                required
+              >
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              Create Deck
+            </button>
+          </form>
+        </div>
+        <div class="card-footer text-center">
+          <a href="{{ url_for('deck_list') }}" class="text-decoration-none">
+            <i class="fas fa-arrow-left"></i> Back to Decks
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

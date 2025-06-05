@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Add Card to {{ deck.name }}{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+          <h5 class="card-title mb-0">Add Card to "{{ deck.name }}"</h5>
+        </div>
+        <div class="card-body">
+          <form
+            method="POST"
+            action="{{ url_for('new_card', deck_id=deck.id) }}"
+            enctype="multipart/form-data"
+          >
+            <!-- Front & Back -->
+            <div class="mb-3">
+              <label for="front" class="form-label">Front (Question)</label>
+              <textarea
+                class="form-control"
+                id="front"
+                name="front"
+                rows="3"
+                placeholder="Enter the question"
+                required
+              ></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="back" class="form-label">Back (Answer)</label>
+              <textarea
+                class="form-control"
+                id="back"
+                name="back"
+                rows="3"
+                placeholder="Enter the answer"
+                required
+              ></textarea>
+            </div>
+
+            <!-- Image Upload or URL -->
+            <div class="mb-3">
+              <label class="form-label">Image (optional)</label>
+              <input
+                class="form-control"
+                type="file"
+                name="image_file"
+                accept="image/*"
+              >
+              <div class="form-text mt-1">
+                Or provide an image URL:
+                <input
+                  type="url"
+                  class="form-control mt-1"
+                  name="image_url"
+                  placeholder="https://example.com/image.png"
+                >
+              </div>
+            </div>
+
+            <!-- Audio Upload or URL -->
+            <div class="mb-3">
+              <label class="form-label">Audio (optional)</label>
+              <input
+                class="form-control"
+                type="file"
+                name="audio_file"
+                accept="audio/*"
+              >
+              <div class="form-text mt-1">
+                Or provide an audio URL:
+                <input
+                  type="url"
+                  class="form-control mt-1"
+                  name="audio_url"
+                  placeholder="https://example.com/audio.mp3"
+                >
+              </div>
+            </div>
+
+            <!-- Select Existing Tags -->
+            <div class="mb-3">
+              <label for="tags" class="form-label">Tags (existing)</label>
+              <select
+                id="tags"
+                name="tags"
+                class="form-select tags-select"
+                multiple="multiple"
+                style="width: 100%;"
+              >
+                {% for tag in tags %}
+                  <option value="{{ tag.id }}">{{ tag.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- New Tags (Comma-separated) -->
+            <div class="mb-3">
+              <label for="new_tags" class="form-label">New Tags (comma-separated)</label>
+              <input
+                type="text"
+                class="form-control"
+                id="new_tags"
+                name="new_tags"
+                placeholder="e.g. biology, chapter1, Spanish"
+              >
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">Save Card</button>
+          </form>
+        </div>
+        <div class="card-footer text-center">
+          <a href="{{ url_for('deck_detail', deck_id=deck.id) }}" class="text-decoration-none">
+            <i class="fas fa-arrow-left"></i> Back to Deck
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Import Cards to {{ deck.name }}{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+          <h5 class="card-title mb-0">Import Cards into "{{ deck.name }}"</h5>
+        </div>
+        <div class="card-body">
+          <p>
+            Upload a spreadsheet (Excel <code>.xlsx</code> or CSV <code>.csv</code>) containing exactly two columns:
+            <strong>front</strong> and <strong>back</strong>.  
+            If you need a template, <a href="{{ url_for('static', filename='templates/template.xlsx') }}">download it here</a>.
+          </p>
+          <form method="POST" enctype="multipart/form-data" action="{{ url_for('import_cards', deck_id=deck.id) }}">
+            <div class="mb-3">
+              <label for="file" class="form-label">Select file</label>
+              <input
+                class="form-control"
+                type="file"
+                name="file"
+                accept=".xlsx,.csv"
+                required
+              >
+            </div>
+            <button type="submit" class="btn btn-info w-100">
+              <i class="fas fa-file-import"></i> Import
+            </button>
+          </form>
+        </div>
+        <div class="card-footer text-center">
+          <a href="{{ url_for('deck_detail', deck_id=deck.id) }}" class="text-decoration-none">
+            <i class="fas fa-arrow-left"></i> Back to Deck
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
