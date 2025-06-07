@@ -5,63 +5,96 @@
   <h1 class="mb-4">Review: {{ deck.name }}</h1>
 
   {% if card %}
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h5 class="card-subtitle mb-3 text-muted">Front</h5>
+    <form method="POST" id="review-form">
+      <input type="hidden" name="card_id" value="{{ card.id }}">
+      <input type="hidden" name="mode" id="mode-input" value="sm2">
 
-        {% if card.image_filename or card.image_url %}
-          <div class="mb-3 text-center">
-            <img
-              src="{% if card.image_filename %}{{ url_for('static', filename='uploads/' ~ card.image_filename) }}{% else %}{{ card.image_url }}{% endif %}"
-              class="img-fluid mb-3"
-              style="max-height: 200px; object-fit: contain;"
-            >
-          </div>
-        {% endif %}
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-subtitle mb-3 text-muted">Front</h5>
 
-        <p class="card-text mb-4">{{ card.front|safe }}</p>
-
-        <button id="show-answer-button" class="btn btn-primary mb-3">
-          <i class="fas fa-eye"></i> Show Answer
-        </button>
-
-        <div id="answer-section" style="display: none; margin-top: 2rem;">
-          <h5 class="card-subtitle mb-3 text-muted">Back</h5>
-
-          {% if card.audio_filename or card.audio_url %}
-            <div class="mb-3">
-              <audio controls style="width: 100%;">
-                <source src="{% if card.audio_filename %}{{ url_for('static', filename='uploads/' ~ card.audio_filename) }}{% else %}{{ card.audio_url }}{% endif %}">
-                Your browser does not support the audio element.
-              </audio>
+          {% if card.image_filename or card.image_url %}
+            <div class="mb-3 text-center">
+              <img
+                src="{% if card.image_filename %}{{ url_for('static', filename='uploads/' ~ card.image_filename) }}{% else %}{{ card.image_url }}{% endif %}"
+                class="img-fluid mb-3"
+                style="max-height: 200px; object-fit: contain;"
+              >
             </div>
           {% endif %}
 
-          <p class="card-text mb-4">{{ card.back|safe }}</p>
+          <p class="card-text mb-4">{{ card.front|safe }}</p>
 
-          <h6>Rate your recall:</h6>
-          <form method="POST" action="{{ url_for('reviews.review', deck_id=deck.id) }}" class="d-flex flex-wrap gap-2">
-            <input type="hidden" name="card_id" value="{{ card.id }}">
-            <button type="submit" name="quality" value="5" class="btn btn-success">5 Perfect</button>
-            <button type="submit" name="quality" value="4" class="btn btn-info">4 Good</button>
-            <button type="submit" name="quality" value="3" class="btn btn-warning">3 Hesitated</button>
-            <button type="submit" name="quality" value="2" class="btn btn-secondary">2 Hard</button>
-            <button type="submit" name="quality" value="1" class="btn btn-danger">1 Forgot</button>
-            <button type="submit" name="quality" value="0" class="btn btn-dark">0 Blackout</button>
-          </form>
+          <div class="d-flex justify-content-between mb-3">
+            <button type="button" class="btn btn-outline-primary" id="toggle-mode">
+              Switch to Active Recall Mode
+            </button>
+            <button type="submit" class="btn btn-success d-none" id="submit-answer">
+              Submit Answer
+            </button>
+          </div>
+
+          <div id="sm2-section">
+            <button id="show-answer-button" class="btn btn-primary mb-3" type="button">
+              <i class="fas fa-eye"></i> Show Answer
+            </button>
+
+            <div id="answer-section" style="display: none;">
+              <h5 class="card-subtitle mb-3 text-muted">Back</h5>
+              <p class="card-text mb-4">{{ card.back|safe }}</p>
+
+              <h6>Rate your recall:</h6>
+              <div class="d-flex flex-wrap gap-2">
+                {% for i in range(5, -1, -1) %}
+                  <button type="submit" name="quality" value="{{ i }}" class="btn btn-{{ ["success", "info", "warning", "secondary", "danger", "dark"][5-i] }}">
+                    {{ i }} {{ ["Perfect", "Good", "Hesitated", "Hard", "Forgot", "Blackout"][5-i] }}
+                  </button>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <div id="active-recall-section" class="d-none">
+            <textarea name="user_answer" class="form-control mb-3" rows="4" placeholder="Type your answer here..."></textarea>
+            {% if feedback %}
+              <div class="alert alert-info">{{ feedback|safe }}</div>
+            {% endif %}
+          </div>
         </div>
       </div>
-    </div>
+    </form>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        const btn = document.getElementById("show-answer-button");
-        if (btn) {
-          btn.addEventListener("click", function() {
-            document.getElementById("answer-section").style.display = "block";
-            btn.style.display = "none";
-          });
-        }
+      document.addEventListener("DOMContentLoaded", function () {
+        const toggleBtn = document.getElementById("toggle-mode");
+        const sm2Section = document.getElementById("sm2-section");
+        const activeSection = document.getElementById("active-recall-section");
+        const modeInput = document.getElementById("mode-input");
+        const submitAnswer = document.getElementById("submit-answer");
+
+        toggleBtn.addEventListener("click", function () {
+          if (modeInput.value === "sm2") {
+            modeInput.value = "active_recall";
+            sm2Section.classList.add("d-none");
+            activeSection.classList.remove("d-none");
+            submitAnswer.classList.remove("d-none");
+            toggleBtn.textContent = "Switch to Normal Review";
+          } else {
+            modeInput.value = "sm2";
+            sm2Section.classList.remove("d-none");
+            activeSection.classList.add("d-none");
+            submitAnswer.classList.add("d-none");
+            toggleBtn.textContent = "Switch to Active Recall Mode";
+          }
+        });
+
+        const showBtn = document.getElementById("show-answer-button");
+        const answer = document.getElementById("answer-section");
+
+        showBtn?.addEventListener("click", () => {
+          answer.style.display = "block";
+          showBtn.style.display = "none";
+        });
       });
     </script>
 

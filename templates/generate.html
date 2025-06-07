@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Generate Flashcards from Research</h2>
+<form method="POST">
+    <div>
+        <label for="topic">Topic</label>
+        <input type="text" name="topic" required>
+    </div>
+    <div>
+        <label for="report">Paste Your Research Report</label><br>
+        <textarea name="report" rows="10" cols="80" required></textarea>
+    </div>
+    <button type="submit">Generate Flashcards</button>
+</form>
+{% endblock %}

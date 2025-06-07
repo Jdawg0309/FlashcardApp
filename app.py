@@ -8,6 +8,7 @@ from blueprints.decks import decks_bp
 from blueprints.cards import cards_bp
 from blueprints.reviews import reviews_bp
 from blueprints.exports import exports_bp
+from blueprints.generate import generate_bp
 
 def create_app():
     app = Flask(__name__)
@@ -29,6 +30,7 @@ def create_app():
     app.register_blueprint(cards_bp)
     app.register_blueprint(reviews_bp)
     app.register_blueprint(exports_bp)
+    app.register_blueprint(generate_bp)
 
     return app
 
