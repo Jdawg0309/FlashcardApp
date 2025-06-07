@@ -11,7 +11,7 @@
         <div class="card-body">
           <form
             method="POST"
-            action="{{ url_for('new_card', deck_id=deck.id) }}"
+            action="{{ url_for('cards.new_card', deck_id=deck.id) }}"
             enctype="multipart/form-data"
           >
             <!-- Front & Back -->
@@ -110,7 +110,7 @@
           </form>
         </div>
         <div class="card-footer text-center">
-          <a href="{{ url_for('deck_detail', deck_id=deck.id) }}" class="text-decoration-none">
+          <a href="{{ url_for('decks.deck_detail', deck_id=deck.id) }}" class="text-decoration-none">
             <i class="fas fa-arrow-left"></i> Back to Deck
           </a>
         </div>

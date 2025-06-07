@@ -9,7 +9,7 @@
           <h5 class="card-title mb-0">Create New Deck</h5>
         </div>
         <div class="card-body">
-          <form method="POST" action="{{ url_for('new_deck') }}">
+          <form method="POST" action="{{ url_for('decks.new_deck') }}">
             <div class="mb-3">
               <label for="name" class="form-label">Deck Name</label>
               <input
@@ -27,7 +27,7 @@
           </form>
         </div>
         <div class="card-footer text-center">
-          <a href="{{ url_for('deck_list') }}" class="text-decoration-none">
+          <a href="{{ url_for('decks.deck_list') }}" class="text-decoration-none">
             <i class="fas fa-arrow-left"></i> Back to Decks
           </a>
         </div>

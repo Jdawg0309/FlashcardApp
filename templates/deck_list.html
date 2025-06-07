@@ -4,7 +4,7 @@
 {% block content %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">My Decks</h1>
-    <a href="{{ url_for('new_deck') }}" class="btn btn-primary">
+    <a href="{{ url_for('decks.new_deck') }}" class="btn btn-primary">
       <i class="fas fa-plus"></i> New Deck
     </a>
   </div>
@@ -20,13 +20,13 @@
                 Created on {{ deck.created_at.strftime("%Y-%m-%d") }}
               </p>
               <div class="mt-auto">
-                <a href="{{ url_for('deck_detail', deck_id=deck.id) }}" class="btn btn-outline-primary btn-sm me-2">
+                <a href="{{ url_for('decks.deck_detail', deck_id=deck.id) }}" class="btn btn-outline-primary btn-sm me-2">
                   View Cards
                 </a>
-                <a href="{{ url_for('review', deck_id=deck.id) }}" class="btn btn-outline-success btn-sm me-2">
+                <a href="{{ url_for('reviews.review', deck_id=deck.id) }}" class="btn btn-outline-success btn-sm me-2">
                   Review
                 </a>
-                <a href="{{ url_for('stats', deck_id=deck.id) }}" class="btn btn-outline-info btn-sm">
+                <a href="{{ url_for('reviews.stats', deck_id=deck.id) }}" class="btn btn-outline-info btn-sm">
                   Stats
                 </a>
               </div>

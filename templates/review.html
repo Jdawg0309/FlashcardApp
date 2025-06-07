@@ -40,7 +40,7 @@
           <p class="card-text mb-4">{{ card.back|safe }}</p>
 
           <h6>Rate your recall:</h6>
-          <form method="POST" action="{{ url_for('review', deck_id=deck.id) }}" class="d-flex flex-wrap gap-2">
+          <form method="POST" action="{{ url_for('reviews.review', deck_id=deck.id) }}" class="d-flex flex-wrap gap-2">
             <input type="hidden" name="card_id" value="{{ card.id }}">
             <button type="submit" name="quality" value="5" class="btn btn-success">5 Perfect</button>
             <button type="submit" name="quality" value="4" class="btn btn-info">4 Good</button>
@@ -69,7 +69,7 @@
     <div class="alert alert-success text-center">
       No cards are due right now! 🎉
     </div>
-    <a href="{{ url_for('deck_detail', deck_id=deck.id) }}" class="btn btn-outline-secondary">
+    <a href="{{ url_for('decks.deck_detail', deck_id=deck.id) }}" class="btn btn-outline-secondary">
       <i class="fas fa-arrow-left"></i> Back to Deck
     </a>
   {% endif %}

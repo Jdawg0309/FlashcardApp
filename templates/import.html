@@ -14,7 +14,7 @@
             <strong>front</strong> and <strong>back</strong>.  
             If you need a template, <a href="{{ url_for('static', filename='templates/template.xlsx') }}">download it here</a>.
           </p>
-          <form method="POST" enctype="multipart/form-data" action="{{ url_for('import_cards', deck_id=deck.id) }}">
+          <form method="POST" enctype="multipart/form-data" action="{{ url_for('cards.import_cards', deck_id=deck.id) }}">
             <div class="mb-3">
               <label for="file" class="form-label">Select file</label>
               <input
@@ -31,7 +31,7 @@
           </form>
         </div>
         <div class="card-footer text-center">
-          <a href="{{ url_for('deck_detail', deck_id=deck.id) }}" class="text-decoration-none">
+          <a href="{{ url_for('decks.deck_detail', deck_id=deck.id) }}" class="text-decoration-none">
             <i class="fas fa-arrow-left"></i> Back to Deck
           </a>
         </div>
