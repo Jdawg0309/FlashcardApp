@@ -1,64 +1,56 @@
 {% extends "base.html" %}
-{% block title %}Stats: {{ deck.name }}{% endblock %}
+{% block title %}Analytics: {{ deck.name }}{% endblock %}
 
 {% block content %}
-  <h1 class="mb-4">Statistics for "{{ deck.name }}"</h1>
+  <h1 class="mb-4">Learning Dashboard for "{{ deck.name }}"</h1>
 
-  <div class="row row-cols-1 row-cols-md-2 g-3 mb-4">
-    <div class="col">
-      <div class="card text-white bg-primary h-100">
+  <div class="row g-4">
+    <!-- Key Metrics -->
+    <div class="col-md-3">
+      <div class="card bg-light shadow">
         <div class="card-body">
-          <h5 class="card-title">Total Cards</h5>
-          <p class="card-text display-6">{{ total_cards }}</p>
+          <h5>Total Cards</h5>
+          <p class="display-6">{{ total_cards }}</p>
         </div>
       </div>
     </div>
-    <div class="col">
-      <div class="card text-white bg-danger h-100">
+    <div class="col-md-3">
+      <div class="card bg-warning text-dark shadow">
         <div class="card-body">
-          <h5 class="card-title">Cards Due Now</h5>
-          <p class="card-text display-6">{{ due_cards }}</p>
+          <h5>Cards Due</h5>
+          <p class="display-6">{{ due_cards }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-success text-white shadow">
+        <div class="card-body">
+          <h5>Avg E-Factor</h5>
+          <p class="display-6">{{ average_efactor | round(2) }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-info text-white shadow">
+        <div class="card-body">
+          <h5>Retention Rate</h5>
+          <p class="display-6">{{ retention_rate | round(1) }}%</p>
         </div>
       </div>
     </div>
   </div>
 
-  <h2 class="mb-3">Recent Reviews</h2>
-  {% if logs %}
-    <div class="table-responsive shadow-sm mb-5">
-      <table class="table table-striped table-hover align-middle">
-        <thead class="table-light">
-          <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Card ID</th>
-            <th scope="col">Quality</th>
-            <th scope="col">Interval (days)</th>
-            <th scope="col">EFactor</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for log in logs %}
-            <tr>
-              <td>{{ log.review_date.strftime("%Y-%m-%d %H:%M") }}</td>
-              <td>{{ log.card_id }}</td>
-              <td>{{ log.quality }}</td>
-              <td>{{ log.interval_days }}</td>
-              <td>{{ "%.2f"|format(log.efactor) }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  {% else %}
-    <div class="alert alert-secondary">
-      No reviews logged yet.
-    </div>
-  {% endif %}
+  <hr class="my-5">
 
-  <h2 class="mb-3">Reviews Over Time</h2>
-  <canvas id="reviewsChart" width="400" height="200"></canvas>
+  <h2 class="mb-3">Daily Review Activity</h2>
+  <canvas id="activityChart" height="150"></canvas>
 
-  <div class="mt-4">
+  <hr class="my-5">
+
+  <h2 class="mb-3">Difficulty Distribution</h2>
+  <canvas id="qualityPieChart" height="200"></canvas>
+
+  <div class="mt-5">
     <a href="{{ url_for('decks.deck_detail', deck_id=deck.id) }}" class="btn btn-outline-secondary">
       <i class="fas fa-arrow-left"></i> Back to Deck
     </a>
@@ -68,35 +60,43 @@
 {% block scripts %}
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    const ctx = document.getElementById('reviewsChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'line',
+    const ctx1 = document.getElementById('activityChart').getContext('2d');
+    new Chart(ctx1, {
+      type: 'bar',
       data: {
-        labels: {{ chart_dates|tojson }},
+        labels: {{ chart_dates | tojson }},
         datasets: [{
-          label: 'Cards Reviewed',
-          data: {{ chart_counts|tojson }},
-          fill: false,
-          tension: 0.1
+          label: 'Reviews per Day',
+          data: {{ chart_counts | tojson }},
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
         }]
       },
       options: {
+        responsive: true,
         scales: {
-          x: {
-            display: true,
-            title: {
-              display: true,
-              text: 'Date'
-            }
-          },
-          y: {
-            display: true,
-            title: {
-              display: true,
-              text: 'Count'
-            },
-            beginAtZero: true
-          }
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    const ctx2 = document.getElementById('qualityPieChart').getContext('2d');
+    new Chart(ctx2, {
+      type: 'doughnut',
+      data: {
+        labels: ['Perfect (5)', 'Good (4)', 'Hesitated (3)', 'Hard (2)', 'Forgot (1)', 'Blackout (0)'],
+        datasets: [{
+          data: {{ quality_distribution | tojson }},
+          backgroundColor: [
+            '#198754', '#0dcaf0', '#ffc107', '#6c757d', '#dc3545', '#343a40'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' }
         }
       }
     });

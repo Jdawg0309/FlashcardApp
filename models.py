@@ -143,6 +143,7 @@ class ReviewLog(db.Model):
     quality = db.Column(db.Integer, nullable=False)
     interval_days = db.Column(db.Integer, nullable=False)
     efactor = db.Column(db.Float, nullable=False)
+    response_time = db.Column(db.Float, nullable=True)  # in seconds
 
     def __repr__(self):
         return (

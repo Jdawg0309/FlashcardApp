@@ -1,27 +1,17 @@
 # scheduler.py
 
 from datetime import datetime, timedelta
+from flask_login import current_user
 
 def sm2(card, quality):
-    """
-    Implements the SM-2 spaced repetition algorithm.
-
-    Args:
-      card: instance of Card (with .interval_days, .repetition, .efactor)
-      quality: integer 0..5 (5 = perfect recall, 0 = complete blackout)
-
-    Returns:
-      (new_interval_days, new_efactor, new_repetition, new_next_review_datetime)
-    """
-    # Clamp quality between 0 and 5
     q = max(0, min(5, quality))
+    user_stat = getattr(current_user, "stat", None)
 
     ef = card.efactor
     rep = card.repetition
     interval = card.interval_days
 
     if q < 3:
-        # Hard recall or forgotten: reset repetition
         rep = 0
         interval = 1
     else:
@@ -33,10 +23,16 @@ def sm2(card, quality):
         else:
             interval = int(interval * ef)
 
-    # Update ease factor
-    ef = ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
-    if ef < 1.3:
-        ef = 1.3
+    # SM-2 efactor update
+    new_ef = ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
+    if new_ef < 1.3:
+        new_ef = 1.3
+
+    # Adaptive smoothing
+    if user_stat:
+        α = user_stat.efactor_stability or 0.5  # stability coefficient (0.0 = reactive, 1.0 = slow to change)
+        user_stat.average_efactor = α * user_stat.average_efactor + (1 - α) * new_ef
+        db.session.add(user_stat)
 
     next_review = datetime.utcnow() + timedelta(days=interval)
-    return interval, ef, rep, next_review
+    return interval, new_ef, rep, next_review
