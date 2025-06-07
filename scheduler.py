@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta
 from flask_login import current_user
+from app import db
 
 def sm2(card, quality):
     q = max(0, min(5, quality))

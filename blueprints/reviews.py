@@ -8,6 +8,8 @@ from models import Deck, Card, ReviewLog
 from extensions import db
 from datetime import datetime
 from scheduler import sm2
+from sqlalchemy.sql import func
+
 
 reviews_bp = Blueprint('reviews', __name__)
 
@@ -134,6 +136,73 @@ Feedback: [Your feedback]
 @reviews_bp.route("/stats/<int:deck_id>")
 @login_required
 def stats(deck_id):
+    deck = Deck.query.filter_by(id=deck_id, user_id=current_user.id).first_or_404()
+    total_cards = deck.cards.count()
+    now = datetime.utcnow()
+    due_cards = deck.cards.filter(Card.next_review <= now).count()
+
+    # Average E-Factor
+    average_efactor = (
+        db.session.query(func.avg(ReviewLog.efactor))
+        .join(Card)
+        .filter(Card.deck_id == deck.id)
+        .scalar()
+    ) or 0.0
+
+    # Retention Rate
+    total_reviews = (
+        db.session.query(func.count(ReviewLog.id))
+        .join(Card)
+        .filter(Card.deck_id == deck.id)
+        .scalar()
+    )
+    remembered_reviews = (
+        db.session.query(func.count(ReviewLog.id))
+        .join(Card)
+        .filter(Card.deck_id == deck.id, ReviewLog.quality >= 3)
+        .scalar()
+    )
+    retention_rate = (remembered_reviews / total_reviews * 100) if total_reviews > 0 else 0.0
+
+    # Quality Distribution
+    quality_counts = (
+        db.session.query(ReviewLog.quality, func.count(ReviewLog.id))
+        .join(Card)
+        .filter(Card.deck_id == deck.id)
+        .group_by(ReviewLog.quality)
+        .all()
+    )
+    quality_distribution = [0] * 6
+    for quality, count in quality_counts:
+        if 0 <= quality <= 5:
+            quality_distribution[5 - quality] = count
+
+    # Activity Chart
+    result = (
+        db.session.query(
+            db.func.date(ReviewLog.review_date).label("day"),
+            db.func.count(ReviewLog.id).label("count")
+        )
+        .join(Card)
+        .filter(Card.deck_id == deck.id)
+        .group_by("day")
+        .order_by("day")
+        .all()
+    )
+    chart_dates = [row.day.strftime("%Y-%m-%d") for row in result]
+    chart_counts = [row.count for row in result]
+
+    return render_template(
+        "stats.html",
+        deck=deck,
+        total_cards=total_cards,
+        due_cards=due_cards,
+        average_efactor=average_efactor,
+        retention_rate=retention_rate,
+        quality_distribution=quality_distribution,
+        chart_dates=chart_dates,
+        chart_counts=chart_counts
+    )
     deck = Deck.query.filter_by(id=deck_id, user_id=current_user.id).first_or_404()
     total_cards = deck.cards.count()
 

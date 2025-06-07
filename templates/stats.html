@@ -5,7 +5,7 @@
   <h1 class="mb-4">Learning Dashboard for "{{ deck.name }}"</h1>
 
   <div class="row g-4">
-    <!-- Key Metrics -->
+    <!-- Total Cards -->
     <div class="col-md-3">
       <div class="card bg-light shadow">
         <div class="card-body">
@@ -14,6 +14,8 @@
         </div>
       </div>
     </div>
+
+    <!-- Cards Due -->
     <div class="col-md-3">
       <div class="card bg-warning text-dark shadow">
         <div class="card-body">
@@ -22,19 +24,30 @@
         </div>
       </div>
     </div>
+
+    <!-- Avg E-Factor -->
     <div class="col-md-3">
       <div class="card bg-success text-white shadow">
         <div class="card-body">
-          <h5>Avg E-Factor</h5>
-          <p class="display-6">{{ average_efactor | round(2) }}</p>
+          <h5>
+            Avg E-Factor
+            <i class="fas fa-question-circle ms-1" data-bs-toggle="tooltip" title="E-Factor (Ease Factor) reflects how easy a card is for you. Ranges from 1.3 (hard) to 2.5+ (easy). Higher = better retention. Adjusts scheduling."></i>
+          </h5>
+          <p class="display-6">
+            {{ average_efactor | default(0) | round(2) }}
+          </p>
         </div>
       </div>
     </div>
+
+    <!-- Retention Rate -->
     <div class="col-md-3">
       <div class="card bg-info text-white shadow">
         <div class="card-body">
           <h5>Retention Rate</h5>
-          <p class="display-6">{{ retention_rate | round(1) }}%</p>
+          <p class="display-6">
+            {{ retention_rate | default(0) | round(1) }}%
+          </p>
         </div>
       </div>
     </div>
@@ -59,7 +72,14 @@
 
 {% block scripts %}
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
+  document.addEventListener("DOMContentLoaded", function () {
+    // Tooltip init
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+      new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Review activity chart
     const ctx1 = document.getElementById('activityChart').getContext('2d');
     new Chart(ctx1, {
       type: 'bar',
@@ -81,6 +101,7 @@
       }
     });
 
+    // Quality distribution pie chart
     const ctx2 = document.getElementById('qualityPieChart').getContext('2d');
     new Chart(ctx2, {
       type: 'doughnut',

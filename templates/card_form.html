@@ -1,17 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Add Card to {{ deck.name }}{% endblock %}
+{% block title %}{{ 'Edit' if card else 'Add' }} Card to {{ deck.name }}{% endblock %}
 
 {% block content %}
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
       <div class="card shadow-sm">
-        <div class="card-header bg-success text-white">
-          <h5 class="card-title mb-0">Add Card to "{{ deck.name }}"</h5>
+        <div class="card-header {{ 'bg-warning' if card else 'bg-success' }} text-white">
+          <h5 class="card-title mb-0">
+            {{ 'Edit Card' if card else 'Add Card to "' ~ deck.name ~ '"' }}
+          </h5>
         </div>
         <div class="card-body">
           <form
             method="POST"
-            action="{{ url_for('cards.new_card', deck_id=deck.id) }}"
+            action="{{ form_action }}"
             enctype="multipart/form-data"
           >
             <!-- Front & Back -->
@@ -24,7 +26,7 @@
                 rows="3"
                 placeholder="Enter the question"
                 required
-              ></textarea>
+              >{{ card.front if card else '' }}</textarea>
             </div>
             <div class="mb-3">
               <label for="back" class="form-label">Back (Answer)</label>
@@ -35,7 +37,7 @@
                 rows="3"
                 placeholder="Enter the answer"
                 required
-              ></textarea>
+              >{{ card.back if card else '' }}</textarea>
             </div>
 
             <!-- Image Upload or URL -->
@@ -53,6 +55,7 @@
                   type="url"
                   class="form-control mt-1"
                   name="image_url"
+                  value="{{ card.image_url if card and card.image_url else '' }}"
                   placeholder="https://example.com/image.png"
                 >
               </div>
@@ -73,28 +76,31 @@
                   type="url"
                   class="form-control mt-1"
                   name="audio_url"
+                  value="{{ card.audio_url if card and card.audio_url else '' }}"
                   placeholder="https://example.com/audio.mp3"
                 >
               </div>
             </div>
 
-            <!-- Select Existing Tags -->
+            <!-- Existing Tags -->
             <div class="mb-3">
               <label for="tags" class="form-label">Tags (existing)</label>
               <select
                 id="tags"
                 name="tags"
                 class="form-select tags-select"
-                multiple="multiple"
+                multiple
                 style="width: 100%;"
               >
                 {% for tag in tags %}
-                  <option value="{{ tag.id }}">{{ tag.name }}</option>
+                  <option value="{{ tag.id }}"
+                    {% if card and tag in card.tags %}selected{% endif %}
+                  >{{ tag.name }}</option>
                 {% endfor %}
               </select>
             </div>
 
-            <!-- New Tags (Comma-separated) -->
+            <!-- New Tags -->
             <div class="mb-3">
               <label for="new_tags" class="form-label">New Tags (comma-separated)</label>
               <input
@@ -102,11 +108,13 @@
                 class="form-control"
                 id="new_tags"
                 name="new_tags"
-                placeholder="e.g. biology, chapter1, Spanish"
+                placeholder="e.g. math, vocab"
               >
             </div>
 
-            <button type="submit" class="btn btn-success w-100">Save Card</button>
+            <button type="submit" class="btn {{ 'btn-warning' if card else 'btn-success' }} w-100">
+              {{ 'Update' if card else 'Save' }} Card
+            </button>
           </form>
         </div>
         <div class="card-footer text-center">

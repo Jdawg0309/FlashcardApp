@@ -31,6 +31,24 @@ def new_deck():
 
     return render_template("deck_form.html")
 
+@decks_bp.route('/decks/<int:deck_id>/delete', methods=['POST'])
+@login_required
+def delete_deck(deck_id):
+    print(f"Request method: {request.method}")
+    print(f"Route accessed with id: {id}")
+    print(f"Request data: {request.data}")
+    print(f"Form data: {request.form}")
+    deck = Deck.query.filter_by(id=deck_id, user_id=current_user.id).first_or_404()
+    db.session.delete(deck)
+    db.session.commit()
+    flash("Deck deleted successfully.", "success")
+    return redirect(url_for('decks.deck_list'))  # ← FIXED
+    deck = Deck.query.filter_by(id=deck_id, user_id=current_user.id).first_or_404()
+    db.session.delete(deck)
+    db.session.commit()
+    flash("Deck deleted successfully.", "success")
+    return redirect(url_for('deck_list.html'))
+
 @decks_bp.route("/decks/<int:deck_id>")
 @login_required
 def deck_detail(deck_id):
